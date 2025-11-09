@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 import axios from 'axios'
-import { useSpeechSynthesis } from 'react-speech-kit'
+import { useSpeechSynthesis } from 'speech-synthesis-react';
 
 export default function WAECPrep(){
   const [q, setQ] = useState('')
