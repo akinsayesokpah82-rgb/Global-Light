@@ -1,0 +1,2 @@
+import React from "react";
+export default function Footer(){return (<footer style={marginTop:40,borderTop:'1px solid #ddd',paddingTop:10}>© 2025 Global Light — Created by Akin S. Sokpah — sokpahakinsaye81@gmail.com<div><a href="https://www.facebook.com/profile.php?id=61583456361691" target="_blank" rel="noreferrer">Facebook</a></div></footer>)}
