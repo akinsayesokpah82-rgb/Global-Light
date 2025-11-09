@@ -1,29 +1,61 @@
-import React, {useState} from 'react'
-import axios from 'axios'
-import { useSpeechSynthesis } from 'speech-synthesis-react';
+import React, { useState } from "react";
+import { useSpeechSynthesis } from "speech-synthesis-react";
+import "../App.css";
 
-export default function WAECPrep(){
-  const [q, setQ] = useState('')
-  const [ans, setAns] = useState(null)
-  const { speak } = useSpeechSynthesis()
+function WAECPrep() {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const { speak, speaking, cancel } = useSpeechSynthesis();
 
-  const ask = async () => {
+  const handleAsk = async () => {
+    if (!question.trim()) return;
+    setAnswer("Thinking... 🤔");
+
     try {
-      const res = await axios.post('/api/openai/chat', { message: q, mode: 'waec' })
-      setAns(res.data)
-      const text = res.data?.choices?.[0]?.message?.content || JSON.stringify(res.data)
-      speak({ text })
-    } catch (e) {
-      setAns({ error: e.message })
+      const res = await fetch("https://global-light-backend.onrender.com/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
+      });
+
+      const data = await res.json();
+      setAnswer(data.answer || "No answer found.");
+
+      // Automatically read the answer aloud
+      speak({ text: data.answer });
+    } catch (error) {
+      console.error(error);
+      setAnswer("Error fetching answer. Please try again.");
     }
-  }
+  };
+
   return (
-    <div>
-      <h2>WAEC / WASSCE Tutor</h2>
-      <textarea value={q} onChange={e=>setQ(e.target.value)} rows={4} cols={60} />
-      <br/>
-      <button onClick={ask}>Ask AI Tutor</button>
-      <pre style={{whiteSpace: 'pre-wrap'}}>{ans && JSON.stringify(ans, null, 2)}</pre>
+    <div className="page-container">
+      <h1 className="title">🎓 WAEC Exam Practice Assistant</h1>
+
+      <div className="input-area">
+        <textarea
+          placeholder="Ask your WAEC question here..."
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          rows={4}
+        />
+        <button onClick={handleAsk} disabled={!question.trim() || speaking}>
+          {speaking ? "Speaking..." : "Ask"}
+        </button>
+        {speaking && (
+          <button onClick={cancel} className="stop-btn">
+            Stop
+          </button>
+        )}
+      </div>
+
+      <div className="answer-area">
+        <h3>Answer:</h3>
+        <p>{answer}</p>
+      </div>
     </div>
-  )
+  );
 }
+
+export default WAECPrep;
